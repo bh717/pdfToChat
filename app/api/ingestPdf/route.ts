@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     },
   });
 
-  if (docAmount > 3) {
+  if (docAmount > 30) {
     return NextResponse.json({
       error: 'You have reached the maximum number of documents',
     });

@@ -1,11 +1,11 @@
 'use client';
 
-import { UploadDropzone } from 'react-uploader';
 import { Uploader } from 'uploader';
 import { useRouter } from 'next/navigation';
 import DocIcon from '@/components/ui/DocIcon';
 import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
+import UploadDropZone from './UploadDropZone';
 
 // Configuration for the uploader
 const uploader = Uploader({
@@ -20,7 +20,7 @@ export default function DashboardClient({ docsList }: { docsList: any }) {
   const [loading, setLoading] = useState(false);
 
   const options = {
-    maxFileCount: 1,
+    maxFileCount: 10,
     mimeTypes: ['application/pdf'],
     editor: { images: { crop: false } },
     styles: {
@@ -30,29 +30,11 @@ export default function DashboardClient({ docsList }: { docsList: any }) {
       },
     },
     onValidate: async (file: File): Promise<undefined | string> => {
-      return docsList.length > 3
+      return docsList.length > 30
         ? `You've reached your limit for PDFs.`
         : undefined;
     },
   };
-
-  const UploadDropZone = () => (
-    <UploadDropzone
-      uploader={uploader}
-      options={options}
-      onUpdate={(file) => {
-        if (file.length !== 0) {
-          setLoading(true);
-          ingestPdf(
-            file[0].fileUrl,
-            file[0].originalFile.originalFileName || file[0].filePath,
-          );
-        }
-      }}
-      width="470px"
-      height="250px"
-    />
-  );
 
   async function ingestPdf(fileUrl: string, fileName: string) {
     let res = await fetch('/api/ingestPdf', {
@@ -134,7 +116,11 @@ export default function DashboardClient({ docsList }: { docsList: any }) {
             Ingesting your PDF...
           </button>
         ) : (
-          <UploadDropZone />
+          <UploadDropZone
+            uploader={uploader}
+            options={options}
+            setLoading={setLoading}
+            ingestPdf={ingestPdf} />
         )}
       </div>
     </div>
